@@ -77,7 +77,7 @@
               timeNotEnough = 1;
             }
 
-            var showStr = `累计:${timeNotEnough ? "-1" : ""} ${timeValueToStr(
+            var showStr = `累计:${timeNotEnough ? "-" : ""} ${timeValueToStr(
               sum
             )} ,`;
 
