@@ -14,10 +14,14 @@ FireFox 扩展
 ![](./WX20210928-161729@2x.png)
 
 历史版本  
++ [v1.2][xpi_v1.3.1]  
 + [v1.3][xpi_v1.3]  
 + [v1.2][xpi_v1.2]  
 
 
 
+
 [xpi_v1.2]: https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.2-fx.xpi
 [xpi_v1.3]: https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.3-fx.xpi
+[xpi_v1.3.1]: https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.3.1-fx.xpi
+
