@@ -1,4 +1,5 @@
 !(async function () {
+  console.log('rJOIEcMfsrGjZkwvw9oEQ');
   async function doTask(){
     if(!/manager\/views\/inner.html/.test(window.location.href)){
       console.log('0-0000000000000000000000000000');
@@ -85,15 +86,18 @@
             break;
           }
 
-          var s = getTimeValue(element.startTime);
-          var e = getTimeValue(element.endTime || element.startTime);
-
-          if (e && s) {
-            var worktitme = e - s - resestTime;
-            worktitme = worktitme > 0 ? worktitme : 0;
-            sum += worktitme - 8 * 3600;
-            console.log("t", (worktitme / 3600).toFixed(0), i);
+          if (element.startTime && element.endTime) {
+            var s = getTimeValue(element.startTime);
+            var e = getTimeValue(element.endTime );
+            if (e && s) {
+            
+              var worktitme = e - s - resestTime;
+              worktitme = worktitme > 0 ? worktitme : 0;
+              sum += worktitme - 8 * 3600;
+              console.log("t", (worktitme / 3600).toFixed(0), i);
+            }
           }
+          
         }
 
         let timeNotEnough = 0;
