@@ -37,7 +37,19 @@
       return `${h}:${m}:${s}`;
     }
 
+    async function wait(t){
+      return new Promise((r,j)=>{
+          setTimeout(() => {
+            r(1);
+          }, t * 1000);
+      });
+    }
+
     async function getCheckInData(){
+      while (document.querySelector(".fc-center > h2:nth-child(1)") == null) {
+        await wait(0.5)
+      }
+      
       var host = location.host;
       return new Promise((r) => {
         var httpRequest = new XMLHttpRequest();
@@ -50,11 +62,8 @@
           "Content-type",
           "application/x-www-form-urlencoded"
         );
-        let ymd = new Date(Date.now() + 8 * 3600000).toISOString().substr(0,10);
-        let date = ymd.substr(0, 7);
-        let today = "" + parseInt(ymd.substr(8, 2));
 
-        date = date.replace("-0", "-");
+        let date = document.querySelector(".fc-center > h2:nth-child(1)").innerText.replace(/年|月/g,'')
         httpRequest.send("recordDateStr=" + date + "&userName=");
         httpRequest.onreadystatechange = function () {
           //请求后的回调接口，可将请求成功后要执行的程序写在其中
@@ -63,6 +72,7 @@
             try {
               var jsonStr = httpRequest.responseText; //获取到服务端返回的数据
               var json = JSON.parse(jsonStr);
+              console.log('result',json)
               r(json);
             } catch (error) {
               console.log(error);
@@ -79,6 +89,7 @@
 
       try {
         var sum = 0;
+        var dayC = 0;
         for (var i = 1; i < 32; i++) {
           const element = json.data["" + i];
 
@@ -95,6 +106,8 @@
               worktitme = worktitme > 0 ? worktitme : 0;
               sum += worktitme - 8 * 3600;
               console.log("t", (worktitme / 3600).toFixed(0), i);
+
+              dayC += 1;
             }
           }
           
@@ -106,9 +119,7 @@
           timeNotEnough = 1;
         }
 
-        var showStr = `累计: ${timeNotEnough ? "-" : "+"} ${timeValueToStr(
-          sum
-        )} ,`;
+        var showStr = `Total: ${timeNotEnough ? "-" : "+"}${timeValueToStr(sum)}  Avg:${(sum/(dayC * 3600)).toFixed(1)}`
 
         try {
           let todayData = json.data[today];
@@ -121,7 +132,7 @@
             v2 = getTimeValue("18:00:00");
           }
 
-          showStr += ` 今天:${timeValueToStr(v2)}`;
+          showStr += `_____今天:${timeValueToStr(v2)}`;
         } catch (error) {}
 
         return showStr;
@@ -151,19 +162,38 @@
         var node = document.getElementById("re0091");
         var nodeBtn = document.getElementById("re0092");
         if (!node) {
+          var nodeFather = document.createElement("div");
+          nodeFather.setAttribute('class','hlxxx')
+          div.appendChild(nodeFather)
+
           node = document.createElement("div");
           node.setAttribute("id", "re0091");
-          div.appendChild(node);
+          node.setAttribute("class",'hlxxdesc')
+          nodeFather.appendChild(node);
 
           nodeBtn = document.createElement("div");
           nodeBtn.setAttribute("id", "re0092");
+          nodeBtn.setAttribute("class",'hlbtnBg')
           nodeBtn.onclick = async ()=>{
             resestTime = resestTime == NoonSleep2 ? NoonSleep1 :  NoonSleep2;
             localStorage.setItem(keySleep,'' + resestTime);
             let strNewTip = await getTipStr(g_data);
             updateTip(strNewTip);
           };
-          div.appendChild(nodeBtn);
+          nodeFather.appendChild(nodeBtn);
+
+
+    
+
+          var nodeBtn2 = document.createElement("div");
+          nodeBtn2.setAttribute("id", "reX0092");
+          nodeBtn2.setAttribute("class",'hlbtnBg')
+          nodeBtn2.onclick = async ()=>{
+            fresh()
+          };
+          nodeBtn2.innerText = "换月重算"
+          nodeFather.appendChild(nodeBtn2);
+
         }
         node.innerText = str;
         nodeBtn.innerText = `午休${resestTime / 3600}h,点击切换`;
@@ -173,9 +203,15 @@
         }, 1000);
       }
     }
-    let g_data = await getCheckInData();
-    var str = await getTipStr(g_data);
-    updateTip(str);
+
+    async function fresh(){
+      g_data = await getCheckInData();
+      var str = await getTipStr(g_data);
+      updateTip(str);
+    }
+
+    fresh()
+    
   }
 
 
