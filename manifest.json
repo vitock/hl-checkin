@@ -3,12 +3,12 @@
   "description": "统计当前月份,弹性工作时长余量,默认午休2小时. 保证8小时工作时间,提示最早下班时间",
   "manifest_version": 2,
   "name": "Huoli-CheckIn",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "homepage_url": "https://github.com/vitock/hl-checkin",
   "icons": {
     "48": "icons/1.png"
   },
-
+   "update_url":"https://github.com/vitock/hl-checkin/raw/master/update.json",
   "content_scripts": [
     {
       "matches": ["https://*/manager/views/inner.html*"],
