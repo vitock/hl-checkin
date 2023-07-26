@@ -156,7 +156,7 @@
 
     function updateTip(str) {
       /// 当前不在考勤页面,3s 后重试
-      if(!/manager\/views\/inner.html#\/attenmanager\/listuseratten/.test(window.location.href)){
+      if(!/attenmanager\/listuseratten/.test(window.location.href)){
         setTimeout(() => {
           updateTip(str);
         }, 3000);
