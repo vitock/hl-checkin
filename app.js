@@ -6,6 +6,8 @@
       return;
     }
 
+    var g_data = {}
+
     const   NoonSleep2 =  2 * 3600;
     const   NoonSleep1 =  1 * 3600;
     const   keySleep = 'rJOIEc';
@@ -90,6 +92,8 @@
       try {
         var sum = 0;
         var dayC = 0;
+
+        var sumAll = 0 
         for (var i = 1; i < 32; i++) {
           const element = json.data["" + i];
 
@@ -105,8 +109,8 @@
               var worktitme = e - s - resestTime;
               worktitme = worktitme > 0 ? worktitme : 0;
               sum += worktitme - 8 * 3600;
+              sumAll += worktitme;
               console.log("t", (worktitme / 3600).toFixed(0), i);
-
               dayC += 1;
             }
           }
@@ -119,20 +123,29 @@
           timeNotEnough = 1;
         }
 
-        var showStr = `Total: ${timeNotEnough ? "-" : "+"}${timeValueToStr(sum)}  Avg:${(sum/(dayC * 3600)).toFixed(1)}`
+        var showStr = `Total:  ${timeNotEnough ? "- " : "+ "}${timeValueToStr(sum)}\nAvg:    ${(sumAll/3600).toFixed(1)}/${dayC} = ${(sumAll/(dayC * 3600)).toFixed(1)}`
 
         try {
+          
           let todayData = json.data[today];
-          let todayStart = todayData.startTime;
-          let v1 = getTimeValue(todayStart);
-          console.log('today,',todayStart,resestTime);
-          /// + 60 按分钟
-          let v2 = v1 + 8 * 3600 + resestTime + 60;
-          if (v2 < getTimeValue("18:00:00")) {
-            v2 = getTimeValue("18:00:00");
+
+          if(todayData['recordDate'] == new Date(new Date().getTime() + 8 * 3600000).toISOString().substring(0,10)){
+
+            let todayStart = todayData.startTime;
+            let v1 = getTimeValue(todayStart);
+            console.log('today,',todayData,todayStart,resestTime);
+            /// + 60 按分钟
+            let v2 = v1 + 8 * 3600 + resestTime + 60;
+            if (v2 < getTimeValue("18:00:00")) {
+              v2 = getTimeValue("18:00:00");
+            }
+            if(!isNaN(v2)){
+              showStr += `\nToday:  ${timeValueToStr(v2)}`;
+            }
           }
 
-          showStr += `_____今天:${timeValueToStr(v2)}`;
+
+          
         } catch (error) {}
 
         return showStr;
@@ -166,7 +179,7 @@
           nodeFather.setAttribute('class','hlxxx')
           div.appendChild(nodeFather)
 
-          node = document.createElement("div");
+          node = document.createElement("pre");
           node.setAttribute("id", "re0091");
           node.setAttribute("class",'hlxxdesc')
           nodeFather.appendChild(node);
@@ -179,6 +192,7 @@
             localStorage.setItem(keySleep,'' + resestTime);
             let strNewTip = await getTipStr(g_data);
             updateTip(strNewTip);
+            console.log('xxxa');
           };
           nodeFather.appendChild(nodeBtn);
 

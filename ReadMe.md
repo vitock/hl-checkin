@@ -18,6 +18,8 @@ FireFox🦊 扩展
 + [v1.3.1][xpi_v1.3.1]  
 + [v1.3][xpi_v1.3]  
 + [v1.2][xpi_v1.2]  
++ [v1.2][xpi_v1.4.0]  
++ [v1.2][xpi_v1.4.1]  
 
 
 
@@ -26,4 +28,6 @@ FireFox🦊 扩展
 [xpi_v1.3]: https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.3-fx.xpi
 [xpi_v1.3.1]: https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.3.1-fx.xpi
 [xpi_v1.3.2]: https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.3.2-fx.xpi
+[xpi_v1.4.0]: https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.4.0.xpi
+[xpi_v1.4.1]: https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.4.1.xpi
 

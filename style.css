@@ -7,7 +7,7 @@
 
 .hlbtnBg{
     
-    background-color: orange;
+    background-color:orange;
     color: #f0f0f0;
     padding-left: 20px;
     padding-right: 20px;
@@ -24,18 +24,18 @@
     width: 100%;
     flex-direction: row;
     display: flex;
-    justify-content: space-between;
+    justify-content:space-between;
     align-items: center;
     padding: 0 5em;
 
-    border-width: 1px;
-    border-style: solid;
-    border-color: black;
 }
 
 
 .hlxxdesc{
     font-size: 1.5em;
-    color: #333;
+    color: #446;
     font-weight: 600;
+    text-align: left;
+
+    /* border: solid 1px orange; */
 }
