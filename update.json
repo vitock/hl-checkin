@@ -18,6 +18,10 @@
             "version": "1.4.4",
             "update_link": "https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.4.4.xpi"
           },
+          {
+            "version": "1.4.5",
+            "update_link": "https://github.com/vitock/hl-checkin/raw/master/xpi/huoli_checkin-1.4.5.xpi"
+          }
         
       ]
     }

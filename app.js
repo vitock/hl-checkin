@@ -1,5 +1,17 @@
 !(async function () {
   console.log("rJOIEcMfsrGjZkwvw9oEQ");
+
+  function setCache(key0, value) {
+    var key = "hlxx" + key0;
+    localStorage.setItem(key, value);
+  }
+
+  function getCache(key0) {
+    var key = "hlxx" + key0;
+    console.log("xxx", key);
+    return localStorage.getItem(key);
+  }
+
   async function doTask() {
     if (!/manager\/views\/inner.html/.test(window.location.href)) {
       console.log("0-0000000000000000000000000000");
@@ -37,6 +49,7 @@
     }
 
     function timeValueToStr(sum) {
+   
       let h = Math.floor(sum / 3600);
       let m = Math.floor((sum - h * 3600) / 60);
       let s = sum % 60;
@@ -92,10 +105,10 @@
               let m2 = parseInt(date.split("-")[1]);
 
               if (y * 10000 + m > y2 * 10000 + m2) {
-                console.log('缓存',date)
-                gCache[date] = json;
-              }else{
-                console.log('不  缓存',date)
+                console.log("缓存", date);
+                setCache(date, jsonStr);
+              } else {
+                console.log("不  缓存", date);
               }
 
               r(json);
@@ -116,7 +129,14 @@
       let ymd = beijingDate();
       let today = "" + parseInt(ymd.substring(8, 10));
 
-        {
+      let date = document
+      .querySelector(".fc-center > h2:nth-child(1)")
+      .innerText.replace(/年|月/g, "");
+
+      var showStr = '' + date
+
+
+      {
         var sum = 0;
         var dayC = 0;
 
@@ -154,22 +174,12 @@
           timeNotEnough = 1;
         }
 
-        let avg = sumAll / dayC;
-        let h = Math.floor(avg / 3600);
+        let avg = sumAll / (dayC * 3600);
 
-        let m = Math.floor((avg - h * 3600) / 60);
+        showStr += `\nTotal:  ${timeNotEnough ? "- " : "+ "}${(sum/3600).toFixed(2)}\nAvg:    ${(sumAll / 3600).toFixed(2)}/${dayC} = ${avg.toFixed(2)}`;
 
-        var showStr = `Total:  ${timeNotEnough ? "- " : "+ "}${timeValueToStr(
-          sum
-        )}\nAvg:    ${(sumAll / 3600).toFixed(2)}/${dayC} = ${h}:${
-          m < 10 ? "0" + m : m
-        }`;
+       
 
-        let date = document
-          .querySelector(".fc-center > h2:nth-child(1)")
-          .innerText.replace(/年|月/g, "");
-
-        
         if (date != null) {
           let y = parseInt(date.split("-")[0]);
           let m = parseInt(date.split("-")[1]);
@@ -180,9 +190,10 @@
           }
 
           var key = `${y}-${m}`;
-          console.log('pre',key)
-          var preData = gCache[key];
-          if (preData && preData.data) {
+          console.log("pre", key);
+          var preDataStr = getCache(key);
+          if (preDataStr) {
+            var preData = JSON.parse(preDataStr);
             var dataInfo = preData.data;
 
             var preMonthWork = 0;
@@ -194,19 +205,22 @@
             for (let i = StartDay; i <= 31; i++) {
               let ele = dataInfo[`${i}`];
               if (ele && ele.isHoliday == "0") {
+                var s = getTimeValue(ele.startTime);
+                var e = getTimeValue(ele.endTime);
+                if (e && s && e - s > 3600) {
+                  var worktitme = e - s - resestTime;
+                  worktitme = worktitme > 0 ? worktitme : 0;
+                  preMonthWork += worktitme;
 
-                preMonthWork += parseInt("" + ele.workTime) * 60;
-                preDayC++;
-                if (ele.isLeave == "3") {
-                  preMonthWork -= 30 * 60;
+                  preDayC += 1;
                 }
 
-                console.log('ttt',i ,ele)
+                /// 补卡 扣30分钟工作时长
+                if (ele.isLeave == "3") {
+                  preMonthWork -= 30 * 60;
+                };
               }
-              
             }
-
-            
 
             var currentWork = 0;
             var currentDayC = 0;
@@ -214,31 +228,37 @@
             for (let i = 0; i < StartDay; i++) {
               let ele = json.data[`${i}`];
               if (ele && ele.isHoliday == "0") {
-                
-                currentWork += parseInt("" + ele.workTime) * 60;
-                currentDayC++;
-                if (ele.isLeave == "3") {
-                  currentWork -= 30 * 60;
+                var s = getTimeValue(ele.startTime);
+                var e = getTimeValue(ele.endTime);
+                if (e && s && e - s > 3600) {
+                  var worktitme = e - s - resestTime;
+                  worktitme = worktitme > 0 ? worktitme : 0;
+                  currentWork += worktitme;
+                  currentDayC += 1;
                 }
 
-                console.log('ttt2',i ,ele.workTime)
+                /// 补卡 扣30分钟工作时长
+                if (ele.isLeave == "3") {
+                  currentWork -= 30 * 60;
+                };
               }
             }
-             
 
-              var total = (currentWork + preMonthWork) / 3600;
+            var total = (currentWork + preMonthWork) / 3600;
 
-              console.log('preMonth',preMonthWork,preDayC)
+            console.log("preMonth", preMonthWork, preDayC);
 
-              showStr += `\nPreTotal:  ${((preMonthWork - 8 * preDayC * 3600) / 3600).toFixed(2)}`
-              showStr += `\nAvg28:   ${total.toFixed(2)}/${
-                currentDayC + preDayC
-              } = ${(total / (currentDayC + preDayC)).toFixed(2)}`;
-            
+            showStr += `\nPre28:  ${(
+              (preMonthWork - 8 * preDayC * 3600) /
+              3600
+            ).toFixed(2)}`;
+            showStr += `\nAvg28:  ${total.toFixed(2)}/${
+              currentDayC + preDayC
+            } = ${(total / (currentDayC + preDayC)).toFixed(2)}`;
           }
         }
 
-        try {
+        {
           let todayData = json.data[today];
 
           if (
@@ -259,10 +279,10 @@
               showStr += `\nToday:  ${timeValueToStr(v2)}`;
             }
           }
-        } catch (error) {}
+        }
 
         return showStr;
-      }  
+      }
       return "error";
     }
 
@@ -300,6 +320,7 @@
           nodeBtn.setAttribute("id", "re0092");
           nodeBtn.setAttribute("class", "hlbtnBg");
           nodeBtn.onclick = async () => {
+            console.log("xxxab");
             resestTime = resestTime == NoonSleep2 ? NoonSleep1 : NoonSleep2;
             localStorage.setItem(keySleep, "" + resestTime);
             let strNewTip = await getTipStr(g_data);
@@ -319,6 +340,7 @@
         }
         node.innerText = str;
         nodeBtn.innerText = `午休${resestTime / 3600}h,点击切换`;
+        console.log('xxx',nodeBtn.innerText)
       } else {
         setTimeout(() => {
           updateTip(str);
