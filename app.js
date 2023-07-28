@@ -1,15 +1,148 @@
 !(async function () {
-  console.log("rJOIEcMfsrGjZkwvw9oEQ");
-
-  function setCache(key0, value) {
-    var key = "hlxx" + key0;
-    localStorage.setItem(key, value);
+  var __DB;
+  async function genDbKey(key) {
+    var name = document.querySelector(".userInfo").innerText;
+    name = name.substring(name.length - 3);
+    const encoder = new TextEncoder();
+    const data = encoder.encode("" + key + name);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+    return hashHex;
   }
 
-  function getCache(key0) {
-    var key = "hlxx" + key0;
-    console.log("xxx", key);
-    return localStorage.getItem(key);
+  async function getDb() {
+    if (__DB) {
+      return __DB;
+    }
+
+    return new Promise((r) => {
+      const request = indexedDB.open("hlxxx", 1);
+      request.onupgradeneeded = function (event) {
+        __DB = event.target.result;
+        const objectStore = __DB.createObjectStore("myObjectStore", {
+          keyPath: "key",
+        });
+      };
+
+      request.onerror = function (event) {
+        console.error("Error opening database:", event.target.error);
+        r(null);
+      };
+
+      request.onsuccess = function (event) {
+        __DB = event.target.result;
+        // 在此处进行数据操作
+        console.log("create db succ");
+        r(__DB);
+      };
+    });
+  }
+
+  var _KEYOBJ;
+  async function genEncKey() {
+    if (_KEYOBJ) {
+      return _KEYOBJ;
+    }
+    var substl = crypto.subtle;
+    let keyRaw = new TextEncoder().encode("了991");
+
+    let key = await substl.importKey("raw", keyRaw, "PBKDF2", false, [
+      "deriveBits",
+    ]);
+
+    let salt = "盐烟衍嫣彦燕言";
+
+    let pbkdf2 = {
+      name: "PBKDF2",
+      hash: "SHA-256",
+      iterations: 2,
+      salt: new TextEncoder().encode(salt),
+    };
+    let af = await substl.deriveBits(pbkdf2, key, 256);
+    let arrPri = new Uint8Array(af);
+
+    _KEYOBJ = await substl.importKey("raw", arrPri, "AES-CBC", false, [
+      "decrypt",
+      "encrypt",
+    ]);
+    return _KEYOBJ;
+  }
+
+  async function encryptData(data) {
+    let dataraw = new TextEncoder().encode(data);
+
+    const iv = crypto.getRandomValues(new Uint8Array(16)); // 生成随机的初始向量 IV
+    const encrypted = await crypto.subtle.encrypt(
+      { name: "AES-CBC", iv: iv, length: 256 },
+      await genEncKey(),
+      dataraw
+    );
+    return { encryptedData: new Uint8Array(encrypted), iv: iv };
+  }
+
+  async function decryptData(dataObj) {
+    try {
+      var plain = await crypto.subtle.decrypt(
+        { name: "AES-CBC", iv: dataObj.iv, length: 256 },
+        await genEncKey(),
+        dataObj.encryptedData
+      );
+      return new TextDecoder().decode(plain);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async function setCache(key0, value) {
+    key0 = await genDbKey(key0);
+    if (value) {
+      value = await encryptData(value);
+    }
+
+    var db = await getDb();
+    const transaction = db.transaction(["myObjectStore"], "readwrite");
+    const objectStore = transaction.objectStore("myObjectStore");
+
+    // 使用 add 方法添加数据，数据对象中必须包含 "customId" 字段作为主键
+    const request = objectStore.put({ key: key0, value: value });
+
+    request.onsuccess = function (event) {
+      console.log("Data added to the database.");
+    };
+
+    request.onerror = function (event) {
+      console.error("Error adding data to the database:", event.target.error);
+    };
+  }
+
+  async function getCache(key0) {
+    key0 = await genDbKey(key0);
+    var db = await getDb();
+    const transaction = db.transaction(["myObjectStore"], "readonly");
+    const objectStore = transaction.objectStore("myObjectStore");
+    const request = objectStore.get(key0);
+    return new Promise((r) => {
+      request.onsuccess = async function (event) {
+        const data = event.target.result;
+        if (data && data.value) {
+          let v = await decryptData(data.value);
+          r(v);
+
+          return;
+        }
+        r(null);
+      };
+      request.onerror = function (event) {
+        console.error(
+          "Error retrieving data from the database:",
+          event.target.error
+        );
+        r(null);
+      };
+    });
   }
 
   async function doTask() {
@@ -49,7 +182,6 @@
     }
 
     function timeValueToStr(sum) {
-   
       let h = Math.floor(sum / 3600);
       let m = Math.floor((sum - h * 3600) / 60);
       let s = sum % 60;
@@ -130,11 +262,10 @@
       let today = "" + parseInt(ymd.substring(8, 10));
 
       let date = document
-      .querySelector(".fc-center > h2:nth-child(1)")
-      .innerText.replace(/年|月/g, "");
+        .querySelector(".fc-center > h2:nth-child(1)")
+        .innerText.replace(/年|月/g, "");
 
-      var showStr = '' + date
-
+      var showStr = "" + date;
 
       {
         var sum = 0;
@@ -176,9 +307,11 @@
 
         let avg = sumAll / (dayC * 3600);
 
-        showStr += `\nTotal:  ${timeNotEnough ? "- " : "+ "}${(sum/3600).toFixed(2)}\nAvg:    ${(sumAll / 3600).toFixed(2)}/${dayC} = ${avg.toFixed(2)}`;
-
-       
+        showStr += `\nTotal:  ${timeNotEnough ? "- " : "+ "}${(
+          sum / 3600
+        ).toFixed(2)}\nAvg:    ${(sumAll / 3600).toFixed(
+          2
+        )}/${dayC} = ${avg.toFixed(2)}`;
 
         if (date != null) {
           let y = parseInt(date.split("-")[0]);
@@ -191,7 +324,7 @@
 
           var key = `${y}-${m}`;
           console.log("pre", key);
-          var preDataStr = getCache(key);
+          var preDataStr = await getCache(key);
           if (preDataStr) {
             var preData = JSON.parse(preDataStr);
             var dataInfo = preData.data;
@@ -218,7 +351,7 @@
                 /// 补卡 扣30分钟工作时长
                 if (ele.isLeave == "3") {
                   preMonthWork -= 30 * 60;
-                };
+                }
               }
             }
 
@@ -240,7 +373,7 @@
                 /// 补卡 扣30分钟工作时长
                 if (ele.isLeave == "3") {
                   currentWork -= 30 * 60;
-                };
+                }
               }
             }
 
@@ -255,9 +388,8 @@
             showStr += `\nAvg28:  ${total.toFixed(2)}/${
               currentDayC + preDayC
             } = ${(total / (currentDayC + preDayC)).toFixed(2)}`;
-          }
-          else{
-            showStr += '\nNo Last Month Data'
+          } else {
+            showStr += "\nNo Last Month Data";
           }
         }
 
@@ -343,7 +475,7 @@
         }
         node.innerText = str;
         nodeBtn.innerText = `午休${resestTime / 3600}h,点击切换`;
-        console.log('xxx',nodeBtn.innerText)
+        console.log("xxx", nodeBtn.innerText);
       } else {
         setTimeout(() => {
           updateTip(str);
