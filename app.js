@@ -256,6 +256,9 @@
               currentDayC + preDayC
             } = ${(total / (currentDayC + preDayC)).toFixed(2)}`;
           }
+          else{
+            showStr += '\nNo Last Month Data'
+          }
         }
 
         {
